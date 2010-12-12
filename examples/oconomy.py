@@ -4,14 +4,14 @@ python-odesk version 0.1
 (C) 2010 oDesk
 """
 import odesk
-from datetime import datetime
+from datetime import date
 
 PUBLIC_KEY = None
 SECRET_KEY = None
 
 #TODO: Desktop app example (check if it's working at all - wasn't last time)
 
-def provider(public_key, secret_key):
+def oconomy(public_key, secret_key):
     print "Emulating web-based app"
     #Instantiating a client without an auth token
     client = odesk.Client(public_key, secret_key)
@@ -28,31 +28,23 @@ def provider(public_key, secret_key):
     #typical for web apps, which wouldn't probably keep client instances 
     #between requests
     client = odesk.Client(public_key, secret_key, auth_token)
-    # get skills
-    print "Provider skills:"
-    print client.provider.get_skills('~~someref')
-    # add new skill
-    print "Adding provider skill"
-    print client.provider.add_skill('~~someref', {'skill':'skill'})
-    # update a skill by giving a skill_id and new data
-    print "Updating provider skill"
-    print client.provider.update_skill('~~someref', 123, {'skill':'skill'})
-    # delete a skill by giving a skill_id
-    print "Deleting provider skill"
-    print client.provider.delete_skill('~~someref', 123)
-    # get quickinfo
-    print "Get quick info"
-    print client.provider.get_quickinfo('~~someref')
-    # update a quickinfo by giving new data
-    client.provider.update_quickinfo('~~someref', {'skill':'skill'})
-    print client.provider.get_affiliates('someref')
-    print "Revoke access"
-    print client.auth.revoke_token()    
-
+    print "monthly summary"
+    print client.oconomy.get_monthly_summary('201011')
+    print "hours worked by locations"
+    print client.oconomy.get_hours_worked_by_locations()
+    print "hours worked by weeks"
+    print client.oconomy.get_hours_worked_by_weeks()
+    print "top countries by hours"
+    print client.oconomy.get_top_countries_by_hours()
+    print "earnings by categories"
+    print client.oconomy.get_earnings_by_categories()
+    print "most requested skills"
+    print client.oconomy.get_most_requested_skills()
+    
  
 if __name__ == '__main__':
     public_key = PUBLIC_KEY or raw_input('Enter public key: ')
     secret_key = SECRET_KEY or raw_input('Enter secret key: ')
 
-    provider(public_key, secret_key)
+    oconomy(public_key, secret_key)
 

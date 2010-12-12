@@ -828,6 +828,8 @@ def test_provider():
     assert pr.update_quickinfo(1, {'quickinfo':'quickinfo'}) == provider_dict,\
         pr.update_quickinfo(1, {'quickinfo':'quickinfo'})
 
+    result = pr.get_affiliates(1)
+    assert result == provider_dict['profile']
 
 trays_dict = {'trays': [{u'unread': u'0', 
               u'type': u'sent', 
@@ -1333,3 +1335,67 @@ def test_gds_namespace():
         
     
                                            
+oconomy_dict = {u'table':
+                {u'rows': 
+                  [{u'c': [{u'v': u'Administrative Support'}, {u'v': u'2787297.31'}]},
+                   {u'c': [{u'v': u'Business Services'}, {u'v': u'1146857.51'}]}, 
+                   {u'c': [{u'v': u'Customer Service'}, {u'v': u'1072926.55'}]}, 
+                   {u'c': [{u'v': u'Design & Multimedia'}, {u'v': u'1730094.73'}]}, 
+                   {u'c': [{u'v': u'Networking & Information Systems'}, {u'v': u'690526.57'}]},
+                   {u'c': [{u'v': u'Sales & Marketing'}, {u'v': u'3232511.54'}]}, 
+                   {u'c': [{u'v': u'Software Development'}, {u'v': u'6826354.60'}]}, 
+                   {u'c': [{u'v': u'Web Development'}, {u'v': u'15228679.46'}]},
+                   {u'c': [{u'v': u'Writing & Translation'}, {u'v': u'2257654.76'}]}                  ], 
+                 u'cols': 
+                  [{u'type': u'string', u'label': u'category'}, 
+                   {u'type': u'number', u'label': u'amount'}]}}
+
+def return_read_oconomy_json(*args, **kwargs):
+    return json.dumps(oconomy_dict)
+
+def patched_urlopen_oconomy_content(request, *args, **kwargs):
+    request.read = return_read_oconomy_json
+    return request  
+
+@patch('urllib2.urlopen', patched_urlopen_oconomy_content)      
+def test_get_monthly_summary():
+    oconomy = get_client().oconomy
+        
+    read = oconomy.get_monthly_summary('201011')
+    assert read == oconomy_dict, read
+
+@patch('urllib2.urlopen', patched_urlopen_oconomy_content)      
+def test_get_hours_worked_by_locations():
+    oconomy = get_client().oconomy
+        
+    read = oconomy.get_hours_worked_by_locations()
+    assert read == oconomy_dict, read
+
+@patch('urllib2.urlopen', patched_urlopen_oconomy_content)      
+def test_get_hours_worked_by_weeks():
+    oconomy = get_client().oconomy
+        
+    read = oconomy.get_hours_worked_by_weeks()
+    assert read == oconomy_dict, read
+
+@patch('urllib2.urlopen', patched_urlopen_oconomy_content)      
+def test_get_top_countries_by_hours():
+    oconomy = get_client().oconomy
+        
+    read = oconomy.get_top_countries_by_hours()
+    assert read == oconomy_dict, read
+
+@patch('urllib2.urlopen', patched_urlopen_oconomy_content)      
+def test_get_earnings_by_categories():
+    oconomy = get_client().oconomy
+        
+    read = oconomy.get_earnings_by_categories()
+    assert read == oconomy_dict, read
+
+@patch('urllib2.urlopen', patched_urlopen_oconomy_content)      
+def test_get_most_requested_skills():
+    oconomy = get_client().oconomy
+        
+    read = oconomy.get_most_requested_skills()
+    assert read == oconomy_dict, read
+
