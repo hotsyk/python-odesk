@@ -5,7 +5,34 @@
 Changelog
 ***************
 
-.. 
+..
+
+.. _0.4:
+
+Version 0.4
+-----------------
+*May 2011*
+
+* *Incompatibility with previous release* Changed name of the otask router to the task
+* *Incompatibility with previous release* Chaged name of the oticket router to the ticket ??
+* *Incompatibility with previous release* Changed name of the time_report router to the timereport
+* *Incompatibility with previous release* Changed name of the finreports router to the finreport
+* *Incompatibility with previous release* "from odesk import *" now import only: "get_version", "Client", "utils"
+* All routers moved from the __init__.py to the own files in the routers dir.
+* All helper classes moved to own modules
+* Added logging inside exceptions
+* Added possiblity to switch off unused routers inside client class
+* Added oconomy, finance routers
+* Added oDesk oAuth support
+
+.. _0.2:
+
+Version 0.2
+-----------------
+*October 2010*
+
+* All helpers classes moved to the utils.py, added Table helper class
+* *Incompatibility with previous release* Changed names of the methods' params to reflect real oDesk params - e.g. company_reference vs company name
 
 .. _0.1.2:
 
@@ -16,7 +43,7 @@ Version 0.1.2
 Bug fix release
 
 * Fixed check_token method
-* Fixed KeyError on empty workdiaries 
+* Fixed KeyError on empty workdiaries
 
 .. _0.1.1:
 
@@ -37,4 +64,3 @@ Version 0.1
 
 First public release
 
-       

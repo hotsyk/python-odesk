@@ -10,3 +10,8 @@ docs/*
 .settings/*
 build/*
 dist/*
+lib/*
+src/*
+bin/*
+include/*
+man/*

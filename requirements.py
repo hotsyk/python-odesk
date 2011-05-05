@@ -1,0 +1,3 @@
+nose
+mock
+oauth2

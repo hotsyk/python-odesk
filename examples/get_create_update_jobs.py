@@ -4,14 +4,14 @@ python-odesk version 0.1
 (C) 2010 oDesk
 """
 import odesk
+from datetime import datetime
 
 PUBLIC_KEY = None
 SECRET_KEY = None
 
-
 #TODO: Desktop app example (check if it's working at all - wasn't last time)
 
-def web_based_app(public_key, secret_key):
+def hr_post_job(public_key, secret_key):
     print "Emulating web-based app"
     #Instantiating a client without an auth token
     client = odesk.Client(public_key, secret_key)
@@ -28,38 +28,28 @@ def web_based_app(public_key, secret_key):
     #typical for web apps, which wouldn't probably keep client instances 
     #between requests
     client = odesk.Client(public_key, secret_key, auth_token)
-
+    job_data = {
+                'buyer_team_reference': 111,
+                'title': 'Test job from API',
+                'job_type': 'hourly',
+                'description': 'this is test job, please do not apply to it',
+                'visibility': 'odesk',
+                'duration': 10,
+                'category': 'Web Development',
+                'subcategory': 'Other - Web Development',
+                }
     try:
-        print "Team rooms:"
-        print client.team.get_teamrooms()
-        #HRv2 API
-        print "HR: companies" 
-        print client.hr.get_companies()
-        print "HR: teams"
-        print client.hr.get_teams()
-        print "HR: offers"
-        print client.hr.get_offers()
-        print "HR: get_engagements"
-        print client.hr.get_engagements()   
-        print "HR: userroles"
-        print client.hr.get_user_role()
-        print "HR: candidacy stats"
-        print client.hr.get_candidacy_stats()
-        print "Get jobs"
-        print client.provider.get_jobs({'q': 'python'})    
-        print "Financial: withdrawal methods"
-        print client.finance.get_withdrawal_methods()
-        print "Revoke access"
-        print client.auth.revoke_token()    
+        print client.hr.post_job(job_data)
     except Exception, e:
         print "Exception at %s %s" % (client.last_method, client.last_url)
         raise e
 
 
-
+    
+ 
 if __name__ == '__main__':
     public_key = PUBLIC_KEY or raw_input('Enter public key: ')
     secret_key = SECRET_KEY or raw_input('Enter secret key: ')
 
-    web_based_app(public_key, secret_key)
+    hr_post_job(public_key, secret_key)
 
