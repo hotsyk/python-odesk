@@ -1348,6 +1348,35 @@ def test_gds_namespace():
     assert gds.urlopen('test.url', {}, 'POST') == None, \
         gds.urlopen('test.url', {}, 'POST')
 
+@patch('urllib2.urlopen', patched_urlopen)
+def test_gds_namespace_read():
+    from odesk.namespaces import GdsNamespace
+    gds = GdsNamespace(get_client())
+    result = gds.read('http://test.url', {'foo': 'bar'}, 'GET')
+    assert isinstance(result, dict), type(res)
+    assert result == sample_json_dict, (result, sample_json_dict)
+
+@patch('urllib2.urlopen', patched_urlopen)
+def test_gds_namespace_get():
+    from odesk.namespaces import GdsNamespace
+    gds = GdsNamespace(get_client())
+    result = gds.get('http://test.url')
+    assert isinstance(result, dict), type(res)
+    assert result == sample_json_dict, (result, sample_json_dict)
+
+def test_non_auth_gds_namespace_post():
+    from odesk.namespaces import NonauthGdsNamespace
+    na_gds = NonauthGdsNamespace(get_client())
+    assert na_gds.urlopen('', method = 'POST') == None
+
+@patch('urllib2.urlopen', patched_urlopen)
+def test_non_auth_gds_namespace_get():
+    from odesk.namespaces import NonauthGdsNamespace
+    na_gds = NonauthGdsNamespace(get_client())
+    result = na_gds.urlopen('http://test.url', method = 'GET')
+    assert isinstance(result, HttpRequest), type(result)
+    assert result.get_full_url() == 'http://test.url', result.get_full_url()
+    assert result.get_method() == 'GET', result.get_method()
 
 oconomy_dict = {u'table':
                 {u'rows':

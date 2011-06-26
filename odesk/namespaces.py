@@ -41,24 +41,23 @@ class Namespace(object):
         return "%s%sv%d/%s" % (self.base_url, self.api_url, self.version, url)
 
     #Proxied client's methods
-    def get(self, url, data={}):
+    def get(self, url, data=None):
         return self.client.get(self.full_url(url), data)
 
-    def post(self, url, data={}):
+    def post(self, url, data=None):
         return self.client.post(self.full_url(url), data)
 
-    def put(self, url, data={}):
+    def put(self, url, data=None):
         return self.client.put(self.full_url(url), data)
 
-    def delete(self, url, data={}):
+    def delete(self, url, data=None):
         return self.client.delete(self.full_url(url), data)
 
 
 class GdsNamespace(Namespace):
     base_url = 'https://www.odesk.com/gds/'
 
-    def urlopen(self, url, data={}, method='GET'):
-        data = data.copy()
+    def urlopen(self, url, data=None, method='GET'):
         query = self.client.urlencode(data)
         if method == 'GET':
             url += '?' + query
@@ -66,7 +65,7 @@ class GdsNamespace(Namespace):
             return urllib2.urlopen(request)
         return None
 
-    def read(self, url, data={}, method='GET'):
+    def read(self, url, data=None, method='GET'):
         """
         Returns parsed Python object or raises an error
         """
@@ -78,7 +77,7 @@ class GdsNamespace(Namespace):
         result = json.loads(response.read())
         return result
 
-    def get(self, url, data={}):
+    def get(self, url, data=None):
         return self.read(self.full_url(url), data, method='GET')
 
 
@@ -88,9 +87,11 @@ class NonauthGdsNamespace(GdsNamespace):
     to request urls (api_sig, api_key & api_token)
     Some APIs return error if called with authentication parameters
     '''
-    def urlopen(self, url, data={}, method='GET'):
+    def urlopen(self, url, data=None, method='GET'):
+        if data is None:
+            data = {}
         if method == 'GET':
-            request = HttpRequest(url=url, data=data.copy(),
+            request = HttpRequest(url=url, data=data,
                     method=method)
             return urllib2.urlopen(request)
         return None

@@ -26,10 +26,12 @@ class OAuth(Namespace):
     authorize_url = 'https://www.odesk.com/services/api/auth'
     access_token_url = 'https://www.odesk.com/api/auth/v1/oauth/token/access'
 
-    def urlencode(self, url, key, secret, data={}, method='GET'):
+    def urlencode(self, url, key, secret, data=None, method='GET'):
         """
         Converts a mapping object to signed url query
         """
+        if data is None:
+            data = {}
         token = oauth.Token(key, secret)
         consumer = self.get_oauth_consumer()
         data.update({

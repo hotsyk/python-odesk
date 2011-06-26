@@ -53,7 +53,7 @@ def _utf8_str(obj):
         return obj
 
 
-def signed_urlencode(secret, query={}):
+def signed_urlencode(secret, query=None):
     """
     Converts a mapping object to signed url query
 
@@ -62,6 +62,8 @@ def signed_urlencode(secret, query={}):
     >>> signed_urlencode('some$ecret', {'spam':42,'foo':'bar'})
     'api_sig=11b1fc2e6555297bdc144aed0a5e641c&foo=bar&spam=42'
     """
+    if query is None:
+        query = {}
     message = secret
     for key in sorted(query.keys()):
         try:
@@ -89,16 +91,18 @@ class BaseClient(object):
         self.api_token = api_token
         self.auth = None
 
-    def urlencode(self, data={}):
-        data = data.copy()
+    def urlencode(self, data=None):
+        if data is None:
+            data = {}
         data['api_key'] = self.public_key
         if self.api_token:
             data['api_token'] = self.api_token
         return signed_urlencode(self.secret_key, data)
 
-    def urlopen(self, url, data={}, method='GET'):
+    def urlopen(self, url, data=None, method='GET'):
         from odesk.oauth import OAuth
-        data = data.copy()
+        if data is None:
+            data = {}
 
         #FIXME: Http method hack. Should be removed once oDesk supports true
         #HTTP methods
@@ -123,7 +127,7 @@ class BaseClient(object):
             request = HttpRequest(url=url, data=query, method=method)
         return urllib2.urlopen(request)
 
-    def read(self, url, data={}, method='GET', format='json'):
+    def read(self, url, data=None, method='GET', format='json'):
         """
         Returns parsed Python object or raises an error
         """
@@ -199,16 +203,16 @@ class Client(BaseClient):
 
 
     #Shortcuts for HTTP methods
-    def get(self, url, data={}):
+    def get(self, url, data=None):
         return self.read(url, data, method='GET', format=self.format)
 
-    def post(self, url, data={}):
+    def post(self, url, data=None):
         return self.read(url, data, method='POST', format=self.format)
 
-    def put(self, url, data={}):
+    def put(self, url, data=None):
         return self.read(url, data, method='PUT', format=self.format)
 
-    def delete(self, url, data={}):
+    def delete(self, url, data=None):
         return self.read(url, data, method='DELETE', format=self.format)
 
 
