@@ -67,7 +67,8 @@ def signed_urlencode(secret, query=None):
     message = secret
     for key in sorted(query.keys()):
         try:
-            message += _utf8_str(key) + _utf8_str(query[_utf8_str(key)])
+            c_key = _utf8_str(key)
+            message += c_key + _utf8_str(query[c_key])
         except Exception, e:
             logging.debug("[python-odesk] Error while trying to sign key: %s and query %s" % (key, query[key]))
             raise e
