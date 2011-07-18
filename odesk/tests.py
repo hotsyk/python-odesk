@@ -13,6 +13,7 @@ from odesk.routers.team import Team
 
 from mock import Mock, patch
 import urllib2
+import httplib
 
 try:
     import json
@@ -135,29 +136,29 @@ def test_base_client_urlopen():
                                                           params["result_method"])
 
 
-def patched_urlopen_error(request, code=400, *args, **kwargs):
+def patched_urlopen_error(request, code=httplib.BAD_REQUEST, *args, **kwargs):
     raise urllib2.HTTPError(url=request.get_full_url(),
                             code=code, msg=str(code), hdrs='', fp=None)
 
 
 def patched_urlopen_400(request, *args, **kwargs):
-    return patched_urlopen_error(request, 400, *args, **kwargs)
+    return patched_urlopen_error(request, httplib.BAD_REQUEST, *args, **kwargs)
 
 
 def patched_urlopen_401(request, *args, **kwargs):
-    return patched_urlopen_error(request, 401, *args, **kwargs)
+    return patched_urlopen_error(request, httplib.UNAUTHORIZED, *args, **kwargs)
 
 
 def patched_urlopen_403(request, *args, **kwargs):
-    return patched_urlopen_error(request, 403, *args, **kwargs)
+    return patched_urlopen_error(request, httplib.FORBIDDEN, *args, **kwargs)
 
 
 def patched_urlopen_404(request, *args, **kwargs):
-    return patched_urlopen_error(request, 404, *args, **kwargs)
+    return patched_urlopen_error(request, httplib.NOT_FOUND, *args, **kwargs)
 
 
 def patched_urlopen_500(request, *args, **kwargs):
-    return patched_urlopen_error(request, 500, *args, **kwargs)
+    return patched_urlopen_error(request, httplib.INTERNAL_SERVER_ERROR, *args, **kwargs)
 
 
 @patch('urllib2.urlopen', patched_urlopen_400)
@@ -251,7 +252,7 @@ def test_base_client_read():
     try:
         result = base_client_read_500(bc=bc, url=test_url)
     except urllib2.HTTPError, e:
-        if e.code == 500:
+        if e.code == httplib.INTERNAL_SERVER_ERROR:
             pass
         else:
             assert 0, "Incorrect exception raised for 500 code: " + str(e)
