@@ -94,3 +94,23 @@ class OAuth(Namespace):
         self.access_token = access_token.get('oauth_token')
         self.access_token_secret = access_token.get('oauth_token_secret')
         return self.access_token, self.access_token_secret
+
+    def get_authorize_header(self, url, key, secret, data=None, realm=None, method='GET'):
+        '''
+        Return authentication header to browser
+        '''
+        if data is None:
+            data = {}
+        token = oauth.Token(key, secret)
+        consumer = self.get_auth_consumer()
+        data.update({
+            'oauth_token': token.key,
+            'oauth_consumer_key': consumer.key,
+            'oauth_version': '1.0',
+            'oauth_nonce': oauth.generate_nonce(),
+            'oauth_timestamp': int(time.time()),
+        })
+        request = oauth.Request(method=method, url=url, parameters=data)
+        signature_method = oauth.SignatureMethod_HMAC_SHA1()
+        request.sign_request(signature_method, consumer, token)
+        return request.to_header(realm)
