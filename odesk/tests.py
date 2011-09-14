@@ -1271,7 +1271,7 @@ def test_get_company_tasks():
     task = get_client().task
 
     assert task.get_company_tasks(1) == task_dict['tasks'], \
-     task.get_company_tasks(1)
+    task.get_company_tasks(1)
 
 
 @patch('urllib2.urlopen', patched_urlopen_task)
@@ -1566,6 +1566,7 @@ def get_oauth_client():
     secret = 'e5864a0bcbed2085'
     return Client(key, secret, auth='oauth')
 
+
 def setup_oauth():
     return OAuth(get_oauth_client())
 
@@ -1605,3 +1606,63 @@ def test_oauth_get_access_token():
     oa.request_token_secret = '193ef27f57ab4e37'
     assert oa.get_access_token('9cbcbc19f8acc2d85a013e377ddd4118') ==\
      ('aedec833d41732a584d1a5b4959f9cd6', '9d9cccb363d2b13e')
+
+
+def get_authorised_oauth_client():
+    public_key = '56adf4b66aaf61444a77796c17c0da53'
+    secret_key = 'e5864a0bcbed2085'
+    oauth_access_token = 'c45dcd9b747cd2681cd8113f689a1446'
+    oauth_access_token_secret = 'ee4bc49450e33f8e'
+    return Client(public_key, secret_key, auth='oauth', oauth_access_token=oauth_access_token, oauth_access_token_secret=oauth_access_token_secret, params_in_headers=True)
+
+teamrooms_str = '{"server_time":"1315923401","auth_user":{"first_name":"first_name","last_name":"last_name","uid":"uid","mail":"mail@odesk.com","timezone":"EET","timezone_offset":"10800"},"teamrooms":{"teamroom":{"company_recno":"240661","parent_team_ref":"118","team_ref":"240661","company_name":"oDesk","name":"oDesk Professional Service Bootcamp","id":"odesk:odeskpsbootcamp","recno":"118","teamroom_api":"\/api\/team\/v1\/teamrooms\/odesk:odeskpsbootcamp.json"}}}'
+
+def patched_urlopen_get_teamrooms(request, *args, **kwargs):
+    headers = request.headers
+    assert headers.keys() == ['Authorization'], headers.keys()
+    value = headers['Authorization']
+    assert value.startswith('OAuth ') == True, value.startswith('OAuth ')
+    ouath_list = value.replace('OAuth ', '').split(', ')
+    oauth_dict = {}
+    for item in ouath_list:
+        v, k = item.split('=')
+        oauth_dict[v]=k
+    oauth_keys = ['oauth_token', 'oauth_signature_method', 'oauth_version',
+                  'oauth_consumer_key', 'oauth_timestamp', 'realm',
+                  'oauth_body_hash', 'oauth_nonce', 'oauth_signature'].sort()
+    assert oauth_dict.keys().sort() == oauth_keys, oauth_dict .keys().sort()
+    assert request.data == None, request.data
+    request.read = lambda: teamrooms_str
+    return request
+
+
+@patch('urllib2.urlopen', patched_urlopen_get_teamrooms)
+def test_get_teamrooms():
+    oauth_client = get_authorised_oauth_client()
+    teamrooms = oauth_client.team.get_teamrooms()
+    assert teamrooms == [{u'team_ref': u'240661', u'name': u'oDesk Professional Service Bootcamp', u'recno': u'118', u'parent_team_ref': u'118', u'company_name': u'oDesk', u'company_recno': u'240661', u'teamroom_api': u'/api/team/v1/teamrooms/odesk:odeskpsbootcamp.json', u'id': u'odesk:odeskpsbootcamp'}], teamrooms
+
+
+def patched_urlopen_update_snapshot(request, *args, **kwargs):
+    headers = request.headers
+    assert headers.keys() == ['Authorization'], headers.keys()
+    value = headers['Authorization']
+    assert value.startswith('OAuth ') == True, value.startswith('OAuth ')
+    ouath_list = value.replace('OAuth ', '').split(', ')
+    oauth_dict = {}
+    for item in ouath_list:
+        v, k = item.split('=')
+        oauth_dict[v]=k
+    oauth_keys = ['oauth_token', 'oauth_signature_method', 'oauth_version',
+                  'oauth_consumer_key', 'oauth_timestamp', 'realm',
+                  'oauth_body_hash', 'oauth_nonce', 'oauth_signature'].sort()
+    assert oauth_dict.keys().sort() == oauth_keys, oauth_dict .keys().sort()
+    assert request.data == 'memo=memo', request.data
+    request.read = return_teamrooms_json
+    return request
+
+
+@patch('urllib2.urlopen', patched_urlopen_update_snapshot)
+def test_update_snapshot():
+    oauth_client = get_authorised_oauth_client()
+    assert oauth_client.team.update_snapshot(1, 1, memo='memo') == teamrooms_dict, oauth_client.team.update_snapshot(1, 1, memo='memo')

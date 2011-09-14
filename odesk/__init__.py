@@ -25,7 +25,7 @@ import hashlib
 import logging
 import urllib
 import urllib2
-
+from copy import copy
 
 from odesk.auth import Auth
 from odesk.http import HttpRequest, raise_http_error
@@ -42,6 +42,13 @@ def _utf8_str(obj):
         logging.debug(e)
         obj.decode("utf8")  # check if it is a valid utf8 string
         return obj
+
+
+def _urlencode(query):
+    _query = {}
+    for k, v in query.iteritems():
+        _query[_utf8_str(k)] = _utf8_str(v)
+    return urllib.urlencode(_query)
 
 
 def signed_urlencode(secret, query=None):
@@ -63,12 +70,9 @@ def signed_urlencode(secret, query=None):
             logging.debug("[python-odesk] Error while trying to sign key: %s'+\
                 ' and query %s" % (key, query[key]))
             raise e
-    #query = query.copy()
-    _query = {}
+    _query = copy(query)
     _query['api_sig'] = hashlib.md5(message).hexdigest()
-    for k, v in query.iteritems():
-        _query[_utf8_str(k)] = _utf8_str(v)
-    return urllib.urlencode(_query)
+    return _urlencode(_query)
 
 
 class BaseClient(object):
@@ -105,18 +109,20 @@ class BaseClient(object):
         self.last_method = method
         self.last_url = url
         self.last_data = data
-
+        headers = {}
         if isinstance(self.auth, OAuth):
-            query = self.auth.urlencode(url, self.oauth_access_token,\
-                self.oauth_access_token_secret, data)
+            query, headers = self.auth.urlencode(url, self.oauth_access_token,\
+                                        self.oauth_access_token_secret, data)
+            if isinstance(query, dict):
+                query = _urlencode(query)
         else:
             query = self.urlencode(data)
 
         if method == 'GET':
             url += '?' + query
-            request = HttpRequest(url=url, data=None, method=method)
-        else:
-            request = HttpRequest(url=url, data=query, method=method)
+            query = None
+
+        request = HttpRequest(url=url, data=query, method=method, headers=headers)
         return urllib2.urlopen(request)
 
     def read(self, url, data=None, method='GET', format='json'):
@@ -142,7 +148,8 @@ class Client(BaseClient):
 
     def __init__(self, public_key, secret_key, api_token=None,
                 oauth_access_token=None, oauth_access_token_secret=None,
-                format='json', auth='simple', finance=True, finreport=True,
+                format='json', auth='simple', params_in_headers=False,
+                finance=True, finreport=True,
                 hr=True, mc=True, oconomy=True, provider=True,
                 task=True, team=True, ticket=True, timereport=True, url=True):
 
@@ -155,7 +162,8 @@ class Client(BaseClient):
             self.auth = Auth(self)
         elif auth == 'oauth':
             from odesk.oauth import OAuth
-            self.auth = OAuth(self)
+            self.auth = OAuth(self, params_in_headers)
+            self.params_in_headers = params_in_headers
             self.oauth_access_token = oauth_access_token
             self.oauth_access_token_secret = oauth_access_token_secret
 

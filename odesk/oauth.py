@@ -8,7 +8,7 @@ import time
 import urlparse
 import urllib
 import oauth2 as oauth
-
+from copy import copy
 
 from odesk.namespaces import Namespace
 from odesk.http import HttpRequest
@@ -23,25 +23,35 @@ class OAuth(Namespace):
     authorize_url = 'https://www.odesk.com/services/api/auth'
     access_token_url = 'https://www.odesk.com/api/auth/v1/oauth/token/access'
 
+    def __init__(self, client, params_in_headers=False):
+        self.client = client
+        self.params_in_headers = params_in_headers
+
     def urlencode(self, url, key, secret, data=None, method='GET'):
         """
         Converts a mapping object to signed url query
         """
+
         if data is None:
             data = {}
+        data_oauth = copy(data)
         token = oauth.Token(key, secret)
         consumer = self.get_oauth_consumer()
-        data.update({
-            'oauth_token': token.key,
-            'oauth_consumer_key': consumer.key,
-            'oauth_version': '1.0',
-            'oauth_nonce': oauth.generate_nonce(),
-            'oauth_timestamp': int(time.time()),
-        })
-        request = oauth.Request(method=method, url=url, parameters=data)
+        data_oauth.update({
+                'oauth_token': token.key,
+                'oauth_consumer_key': consumer.key,
+                'oauth_version': '1.0',
+                'oauth_nonce': oauth.generate_nonce(),
+                'oauth_timestamp': int(time.time()),
+                 })
+        request = oauth.Request(method=method, url=url, parameters=data_oauth)
         signature_method = oauth.SignatureMethod_HMAC_SHA1()
         request.sign_request(signature_method, consumer, token)
-        return request.to_postdata()
+        if self.params_in_headers:
+            return data, request.to_header(realm='My Application')
+        else:
+            headers = {}
+            return request.to_postdata(), headers
 
     def get_oauth_consumer(self):
         """
