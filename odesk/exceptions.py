@@ -3,7 +3,7 @@
 # (C) 2010-2014 oDesk
 
 import logging
-import urllib2
+from six.moves import urllib
 
 
 class BaseException(Exception):
@@ -19,10 +19,10 @@ class BaseException(Exception):
         logger = logging.getLogger('python-odesk')
         logger.debug('{0}: {1}'.format(
             self.__class__.__name__,
-            ', '.join(map(unicode, args))))
+            ', '.join(map(str, args))))
 
 
-class BaseHttpException(urllib2.HTTPError, BaseException):
+class BaseHttpException(urllib.error.HTTPError, BaseException):
 
     def __init__(self, *args, **kwargs):
         self.odesk_debug(*args, **kwargs)

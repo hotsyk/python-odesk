@@ -2,7 +2,7 @@
 # python-odesk version 0.5
 # (C) 2010-2014 oDesk
 
-import urllib
+from six.moves import urllib
 
 from odesk.namespaces import Namespace
 

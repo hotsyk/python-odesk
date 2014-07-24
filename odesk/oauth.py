@@ -2,12 +2,11 @@
 # python-odesk version 0.5
 # (C) 2010-2014 oDesk
 
+from six.moves import urllib
+import logging
+import oauth2 as oauth
 import os
 import time
-import urlparse
-import urllib
-import oauth2 as oauth
-import logging
 
 from .config import BASE_URL
 
@@ -91,7 +90,7 @@ class OAuth(Namespace):
         if response.get('status') != '200':
             raise Exception(
                 "Invalid request token response: {0}.".format(content))
-        request_token = dict(urlparse.parse_qsl(content))
+        request_token = dict(urllib.parse.parse_qsl(content))
         self.request_token = request_token.get('oauth_token')
         self.request_token_secret = request_token.get('oauth_token_secret')
         return self.request_token, self.request_token_secret
@@ -103,10 +102,10 @@ class OAuth(Namespace):
         oauth_token = getattr(self, 'request_token', None) or\
             self.get_request_token()[0]
         if callback_url:
-            params = urllib.urlencode({'oauth_token': oauth_token,\
-                'oauth_callback': callback_url})
+            params = urllib.parse.urlencode({'oauth_token': oauth_token,
+                                             'oauth_callback': callback_url})
         else:
-            params = urllib.urlencode({'oauth_token': oauth_token})
+            params = urllib.parse.urlencode({'oauth_token': oauth_token})
         return '{0}?{1}'.format(self.authorize_url, params)
 
     def get_access_token(self, verifier):
@@ -116,7 +115,7 @@ class OAuth(Namespace):
         try:
             request_token = self.request_token
             request_token_secret = self.request_token_secret
-        except AttributeError, e:
+        except AttributeError as e:
             logger = logging.getLogger('python-odesk')
             logger.debug(e)
             raise Exception("At first you need to call get_authorize_url")
@@ -127,7 +126,7 @@ class OAuth(Namespace):
         if response.get('status') != '200':
             raise Exception(
                 "Invalid access token response: {0}.".format(content))
-        access_token = dict(urlparse.parse_qsl(content))
+        access_token = dict(urllib.parse.parse_qsl(content))
         self.access_token = access_token.get('oauth_token')
         self.access_token_secret = access_token.get('oauth_token_secret')
         return self.access_token, self.access_token_secret

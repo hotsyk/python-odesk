@@ -3,8 +3,7 @@
 # (C) 2010-2014 oDesk
 
 import logging
-import urllib2
-import httplib
+from six.moves import http_client, urllib
 
 from odesk.exceptions import HTTP400BadRequestError, HTTP401UnauthorizedError,\
     HTTP403ForbiddenError, HTTP404NotFoundError
@@ -17,12 +16,12 @@ __all__ = ['raise_http_error']
 
 
 def raise_http_error(url, response):
-    """Raise custom ``urllib2.HTTPError`` exception.
+    """Raise custom ``urllib.error.HTTPError`` exception.
 
     *Parameters:*
       :url:         Url that caused an error
 
-      :response:    ``urllib3`` response object
+      :response:    ``urllib`` response object
 
     """
     status_code = response.status
@@ -34,21 +33,21 @@ def raise_http_error(url, response):
     formatted_msg = 'Code {0}: {1}'.format(odesk_error_code,
                                            odesk_error_message)
 
-    if status_code == httplib.BAD_REQUEST:
+    if status_code == http_client.BAD_REQUEST:
         raise HTTP400BadRequestError(url, status_code, formatted_msg,
                                      headers, None)
-    elif status_code == httplib.UNAUTHORIZED:
+    elif status_code == http_client.UNAUTHORIZED:
         raise HTTP401UnauthorizedError(url, status_code, formatted_msg,
                                        headers, None)
-    elif status_code == httplib.FORBIDDEN:
+    elif status_code == http_client.FORBIDDEN:
         raise HTTP403ForbiddenError(url, status_code, formatted_msg,
                                     headers, None)
-    elif status_code == httplib.NOT_FOUND:
+    elif status_code == http_client.NOT_FOUND:
         raise HTTP404NotFoundError(url, status_code, formatted_msg,
                                    headers, None)
     else:
-        error = urllib2.HTTPError(url, status_code, formatted_msg,
-                                  headers, None)
+        error = urllib.error.HTTPError(url, status_code, formatted_msg,
+                                       headers, None)
         logger = logging.getLogger('python-odesk')
         logger.debug(str(error))
         raise error

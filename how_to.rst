@@ -26,18 +26,18 @@ http://developers.odesk.com/Authentication
 To authenticate your web application with the python-odesk, use something similar
 to the code below::
 
-    public_key = raw_input('Please enter public key: > ')
-    secret_key = raw_input('Please enter secret key: > ')
+    public_key = input('Please enter public key: > ')
+    secret_key = input('Please enter secret key: > ')
 
     #Instantiating a client without an auth token
     client = odesk.Client(public_key, secret_key)
 
-    print "Please to this URL (authorize the app if necessary):"
-    print client.auth.get_authorize_url()
-    print "After that you should be redirected back to your app URL with " + \
-          "additional ?oauth_verifier= parameter"
+    print("Please to this URL (authorize the app if necessary):")
+    print(client.auth.get_authorize_url())
+    print("After that you should be redirected back to your app URL with "
+          "additional ?oauth_verifier= parameter")
 
-    verifier = raw_input('Enter oauth_verifier: ')
+    verifier = input('Enter oauth_verifier: ')
 
     oauth_access_token, oauth_access_token_secret = \
         client.auth.get_access_token(verifier)

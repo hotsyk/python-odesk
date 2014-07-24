@@ -76,7 +76,7 @@ Initializing the client::
 
 Now follow the ``authorize_url``::
 
-    print client.auth.get_authorize_url()
+    print(client.auth.get_authorize_url())
 
 After you follow this url you'll be redirected to the callback url that you
 entered during API keys creation. The ``oauth_verifier`` parameter is passed to the callback
@@ -107,11 +107,11 @@ This call will give you information about the currently authorized user.
 
 So now just start playing with the API, for example you can get your teamrooms::
 
-    print client.team.get_teamrooms()
+    print(client.team.get_teamrooms())
 
 or get your companies::
 
-    print client.hr.get_companies()
+    print(client.hr.get_companies())
 
 
 See the Reference Documentation for the full list of available API calls

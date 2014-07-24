@@ -156,8 +156,10 @@ class Table(object):
         if not isinstance(key, (slice, int)):
             raise TypeError
         if isinstance(key, slice):
+            # TODO: not working in py3
             return [dict(zip(self.cols, row)) for row in self.rows[key]]
         else:
+            # TODO: not working in py3
             return dict(zip(self.cols, self.rows[key]))
 
     def __len__(self):

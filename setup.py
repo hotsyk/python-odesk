@@ -1,5 +1,7 @@
 # Copyright (c) 2010-2014, oDesk http://www.odesk.com
 # All rights reserved.
+from __future__ import print_function
+
 import re
 import os
 from setuptools import setup, find_packages
@@ -11,7 +13,7 @@ README = readme.read()
 readme.close()
 
 
-VERSION = (0, 5, 2, 'final', 0)
+VERSION = (0, 6, 0, 'alpha', 0)
 
 
 def get_version():
@@ -32,7 +34,7 @@ def update_init(version):
     """Update version number in the ``odesk/__init__.py``.
 
     """
-    print 'Updating ``odesk/__init__.py`` to version "{0}"'.format(version)
+    print('Updating ``odesk/__init__.py`` to version "{0}"'.format(version))
     # Update 'VERSION' variable in ``odesk/__init__.py``
     with open('odesk/__init__.py', 'r') as f:
         init_contents = f.read()
@@ -49,7 +51,7 @@ def update_init(version):
     with open('odesk/__init__.py', 'w') as f:
         f.write(new_init)
 
-    print 'OK'
+    print('OK')
 
 
 class UpdateVersion(Command):
@@ -66,6 +68,10 @@ class UpdateVersion(Command):
     def run(self):
         update_init(get_version())
 
+# NOTE: as official oauth2 not supporting python3,
+# branch https://github.com/tseaver/python-oauth2/tree/py3-redux used insted
+# setuptools cannot install from githubbranch, so you need to install manually
+# pip install -e git+https://github.com/tseaver/python-oauth2@py3-redux#egg=oauth
 
 setup(cmdclass={'update_version': UpdateVersion},
       name='python-odesk',
@@ -76,7 +82,7 @@ setup(cmdclass={'update_version': UpdateVersion},
       author_email='python@odesk.com',
       maintainer='Kirill Panshin',
       maintainer_email='kamelok@odesk.com',
-      install_requires=['oauth2', 'urllib3'],
+      install_requires=['oauth2', 'urllib3', 'six'],
       packages=find_packages(),
       license='BSD',
       download_url='http://github.com/odesk/python-odesk',
